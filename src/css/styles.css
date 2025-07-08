@@ -28,8 +28,8 @@ body {
     box-shadow: var(--shadow);
     border-radius: var(--radius);
     padding: 2.5rem 1.5rem 2rem 1.5rem;
-    width: 100%;
-    max-width: 420px;
+    width: mx-auto;
+
     margin: 2rem;
 }
 
@@ -45,68 +45,69 @@ h1 {
     display: flex;
     gap: 0.5rem;
     margin-bottom: 1.5rem;
+    align-items: center;
 }
 
 #todo-input {
-    flex: 1;
+    flex: 1 1 0;
+    min-width: 140px;
+    max-width: 100%;
+    width: 100%;
     padding: 0.7rem 1rem;
     border: 1px solid #e2e8f0;
     border-radius: var(--radius);
     font-size: 1rem;
     outline: none;
     transition: border var(--transition);
+    box-sizing: border-box;
 }
 
-#todo-input:focus {
-    border-color: var(--primary);
-}
-
-.btn {
-    padding: 0.7rem 1.2rem;
-    border: none;
+/* Make sure the date input is wide enough for the full date and calendar icon */
+#todo-date {
+    flex: 0 0 180px;
+    min-width: 180px;
+    max-width: 220px;
+    width: 180px;
+    padding: 0.7rem 2.5rem 0.7rem 1rem; /* extra right padding for calendar icon */
+    border: 1px solid #e2e8f0;
     border-radius: var(--radius);
+    font-size: 1rem;
+    outline: none;
+    transition: border var(--transition);
+    box-sizing: border-box;
+    background-clip: padding-box;
+}
+
+.add-btn,
+.edit-btn,
+.delete-btn,
+.cancel-btn {
+    background: var(--primary);
+    color: var(--white);
+    padding: 0.7rem 1.2rem;
+    border-radius: var(--radius);
+    border: none;
     font-size: 1rem;
     cursor: pointer;
     transition: background var(--transition), color var(--transition), box-shadow var(--transition);
     font-weight: 500;
+    display: flex;
+    align-items: center;
+    outline: none;
+    box-shadow: none;
 }
 
-.add-btn {
-    background: var(--primary);
-    color: var(--white);
-}
+.add-btn { background: var(--primary); }
+.add-btn:hover { background: #434190; }
 
-.add-btn:hover {
-    background: #434190;
-}
+.edit-btn { background: var(--accent); }
+.edit-btn:hover { background: #38a169; }
 
-.edit-btn {
-    background: var(--accent);
-    color: var(--white);
-    margin-right: 0.5rem;
-}
+.delete-btn { background: var(--danger); }
+.delete-btn:hover { background: #c53030; }
 
-.edit-btn:hover {
-    background: #38a169;
-}
-
-.delete-btn {
-    background: var(--danger);
-    color: var(--white);
-}
-
-.delete-btn:hover {
-    background: #c53030;
-}
-
-.cancel-btn {
-    background: #a0aec0;
-    color: var(--white);
-}
-
-.cancel-btn:hover {
-    background: #718096;
-}
+.cancel-btn { background: #a0aec0; }
+.cancel-btn:hover { background: #718096; }
 
 #todo-list {
     list-style: none;
@@ -114,15 +115,15 @@ h1 {
     margin: 0;
 }
 
+/* Task item layout: task name left, date right, actions after */
 .todo-item {
+    display: flex;
+    align-items: center;
+    padding: 0.9rem 1rem;
     background: #edf2f7;
     border-radius: var(--radius);
     margin-bottom: 0.8rem;
-    padding: 0.9rem 1rem;
-    display: flex;
-    align-items: center;
     box-shadow: 0 2px 8px rgba(90,103,216,0.04);
-    transition: box-shadow var(--transition), background var(--transition);
     position: relative;
     opacity: 1;
     animation: fadeSlideIn 0.4s cubic-bezier(.4,0,.2,1);
@@ -144,18 +145,44 @@ h1 {
 }
 
 .todo-text {
-    flex: 1;
+    flex: 1 1 0;
     font-size: 1.05rem;
     color: #2d3748;
     word-break: break-word;
     text-align: left;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 1rem;
 }
 
+/* The date is always at the far right of the task item, before the actions */
+.todo-date {
+    flex: 0 0 110px;
+    text-align: right;
+    color: #5a67d8;
+    font-size: 1.01rem;
+    font-weight: 500;
+    font-style: normal;
+    white-space: nowrap;
+    margin-right: 1rem;
+    background: none;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+    display: block;
+    align-items: unset;
+    justify-content: unset;
+    letter-spacing: 0.5px;
+}
+
+/* Actions stay at the end */
 .todo-actions {
     display: flex;
     align-items: center;
     gap: 0.2rem;
-    margin-left: auto;
+    margin-left: 0;
     justify-content: flex-end;
 }
 
@@ -178,17 +205,22 @@ h1 {
     display: none;
 }
 
+/* Responsive: stack form fields on mobile */
 @media (max-width: 600px) {
-    .container {
-        padding: 1.2rem 0.5rem 1.2rem 0.5rem;
-        max-width: 98vw;
-    }
-    .todo-item {
-        padding: 0.7rem 0.6rem;
-    }
     #todo-form {
         flex-direction: column;
         gap: 0.7rem;
+        align-items: stretch;
+    }
+    .add-btn {
+        width: 100%;
+        margin-left: 0;
+        height: auto;
+    }
+    .todo-date {
+        flex: 0 0 90px;
+        margin-right: 0.5rem;
+        font-size: 0.97rem;
     }
 }
 
@@ -233,4 +265,22 @@ h1 {
     display: flex;
     gap: 0.7rem;
     justify-content: center;
+}
+
+.search-bar {
+    width: 100%;
+    margin-bottom: 1.2rem;
+    padding: 0.7rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    outline: none;
+    transition: border var(--transition);
+    box-sizing: border-box;
+    background: #f7fafc;
+    color: #2d3748;
+}
+
+.search-bar:focus {
+    border-color: var(--primary);
 }

@@ -3,10 +3,12 @@ import { saveTasks, loadTasks } from './storage.js';
 
 const todoForm = document.getElementById('todo-form');
 const todoInput = document.getElementById('todo-input');
+const todoDate = document.getElementById('todo-date');
 const todoList = document.getElementById('todo-list');
 const modalOverlay = document.getElementById('modal-overlay');
 const confirmDeleteBtn = document.getElementById('confirm-delete');
 const cancelDeleteBtn = document.getElementById('cancel-delete');
+const searchInput = document.getElementById('search-input');
 
 // --- Edit Modal Elements ---
 let editModal = null;
@@ -82,9 +84,34 @@ function hideEditModal() {
     }, 300);
 }
 
-function renderTasks() {
+function formatDateDMY(dateStr) {
+    if (!dateStr) return '';
+    const [year, month, day] = dateStr.split('-');
+    return `${day}-${month}-${year}`;
+}
+
+todoForm.onsubmit = (e) => {
+    e.preventDefault();
+    const text = todoInput.value.trim();
+    const date = todoDate.value;
+    if (!text || !date) {
+        todoInput.reportValidity();
+        todoDate.reportValidity();
+        return;
+    }
+    tasks.push({ text, date });
+    saveTasks(tasks);
+    todoInput.value = '';
+    todoDate.value = '';
+    renderTasks();
+};
+
+function renderTasks(filter = "") {
     todoList.innerHTML = '';
-    tasks.forEach((task, idx) => {
+    const filteredTasks = filter
+        ? tasks.filter(task => task.text.toLowerCase().includes(filter.toLowerCase()))
+        : tasks;
+    filteredTasks.forEach((task, idx) => {
         const li = document.createElement('li');
         li.className = 'todo-item';
         li.setAttribute('data-index', idx);
@@ -92,6 +119,10 @@ function renderTasks() {
         const textSpan = document.createElement('span');
         textSpan.className = 'todo-text';
         textSpan.textContent = task.text;
+
+        const dateSpan = document.createElement('span');
+        dateSpan.className = 'todo-date';
+        dateSpan.textContent = task.date ? formatDateDMY(task.date) : '';
 
         const actions = document.createElement('div');
         actions.className = 'todo-actions';
@@ -108,6 +139,7 @@ function renderTasks() {
         actions.appendChild(deleteBtn);
 
         li.appendChild(textSpan);
+        li.appendChild(dateSpan);
         li.appendChild(actions);
 
         // Animations
@@ -116,7 +148,7 @@ function renderTasks() {
 
         // Edit (open modal)
         editBtn.onclick = () => {
-            showEditModal(idx, task.text);
+            showEditModal(idx, task.text, task.date);
         };
 
         // Delete
@@ -129,15 +161,10 @@ function renderTasks() {
     });
 }
 
-todoForm.onsubmit = (e) => {
-    e.preventDefault();
-    const text = todoInput.value.trim();
-    if (!text) return;
-    tasks.push({ text });
-    saveTasks(tasks);
-    todoInput.value = '';
-    renderTasks();
-};
+// Add search functionality
+searchInput.addEventListener('input', (e) => {
+    renderTasks(e.target.value);
+});
 
 function showModal() {
     modalOverlay.classList.add('active');
